@@ -6,10 +6,26 @@ Add a food entry to the intake log.
 
 When the user reports eating something, use this skill to log it.
 
-## Process
+## Preferred Method: Use USDA ID
 
-1. First, get nutritional data using the `lookup_nutrition` skill
-2. Then run the logging script:
+If the food is in the USDA database, use `--usda-id` for automatic nutrient lookup and scaling:
+
+```bash
+# First find the food
+python3 scripts/lookup_usda.py "chicken breast"
+
+# Then log with the FDC ID - nutrients auto-populated
+python3 scripts/log_entry.py \
+  --food "Chicken breast" \
+  --amount 175 \
+  --usda-id 2727569
+```
+
+This stores the USDA ID so you can recalculate nutrients later if the amount changes.
+
+## Manual Method
+
+If USDA data isn't available (packaged foods, restaurant meals), provide values manually:
 
 ```bash
 python3 scripts/log_entry.py \
@@ -20,13 +36,10 @@ python3 scripts/log_entry.py \
   --carbs CARBS_G \
   --fat FAT_G \
   [--fiber FIBER_G] \
-  [--sugar SUGAR_G] \
-  [--sodium SODIUM_MG] \
-  [--notes "OPTIONAL_NOTES"] \
-  [--timestamp "YYYY-MM-DDTHH:MM:SS"]
+  [--notes "OPTIONAL_NOTES"]
 ```
 
-All micronutrient flags are optional. Only include what you have data for.
+You can mix: use `--usda-id` for base values and override specific fields.
 
 ## Available Nutrient Flags
 
@@ -34,26 +47,27 @@ Macros: `--protein`, `--carbs`, `--fiber`, `--sugar`, `--fat`, `--saturated-fat`
 
 Minerals: `--cholesterol`, `--sodium`, `--potassium`, `--calcium`, `--iron`, `--magnesium`, `--phosphorus`, `--zinc`, `--copper`, `--manganese`, `--selenium`
 
-Vitamins: `--vitamin-a`, `--vitamin-c`, `--vitamin-d`, `--vitamin-e`, `--vitamin-k`, `--vitamin-b1`, `--vitamin-b2`, `--vitamin-b3`, `--vitamin-b5`, `--vitamin-b6`, `--vitamin-b7`, `--vitamin-b9`, `--vitamin-b12`
+Vitamins: `--vitamin-a`, `--vitamin-c`, `--vitamin-d`, `--vitamin-e`, `--vitamin-k`, `--vitamin-b1` through `--vitamin-b12`
 
-Other: `--omega3`, `--omega6`, `--water`, `--caffeine`, `--alcohol`
+Other: `--omega3`, `--omega6`, `--water`, `--caffeine`, `--alcohol`, `--notes`, `--timestamp`
 
-## Example
+## Example Workflow
 
 User says: "I ate 150g of chicken breast"
 
-After looking up nutrition:
 ```bash
-python3 scripts/log_entry.py \
-  --food "chicken breast, cooked" \
-  --amount 150 \
-  --calories 231 \
-  --protein 43.5 \
-  --carbs 0 \
-  --fat 5 \
-  --sodium 104
+# Look up in USDA
+python3 scripts/lookup_usda.py "chicken breast" --portions
+
+# Output shows FDC ID 2727569 for "Chicken, breast, meat and skin, raw"
+
+# Log with USDA ID
+python3 scripts/log_entry.py --food "Chicken breast" --amount 150 --usda-id 2727569
 ```
 
 ## Confirmation
 
-After logging, tell the user what was recorded with the key macros.
+After logging, tell the user what was recorded:
+- Food name and amount
+- Key macros (calories, protein, carbs, fat)
+- Note if data came from USDA
