@@ -1,0 +1,20 @@
+nutrient,daily_target,unit,notes
+calories,2000,kcal,adjust based on goals
+protein_g,50,g,0.8g per kg bodyweight minimum
+carbs_g,250,g,
+fiber_g,28,g,
+sugar_g,50,g,max recommended
+fat_g,65,g,
+saturated_fat_g,20,g,max recommended
+trans_fat_g,0,g,avoid
+cholesterol_mg,300,mg,max recommended
+sodium_mg,2300,mg,max recommended
+potassium_mg,4700,mg,
+calcium_mg,1000,mg,
+iron_mg,18,mg,varies by sex
+magnesium_mg,400,mg,
+zinc_mg,11,mg,
+vitamin_a_mcg,900,mcg,
+vitamin_c_mg,90,mg,
+vitamin_d_mcg,20,mcg,
+vitamin_b12_mcg,2.4,mcg,
