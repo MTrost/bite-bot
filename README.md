@@ -6,7 +6,7 @@ AI-assisted macro and micronutrient tracker. The interface is natural language -
 
 1. Fork this repo
 2. Connect to an LLM (Claude Code, etc.)
-3. Log food in natural language: "I had two eggs and toast for breakfast"
+3. Log food in natural language in writing or speech: "I had two eggs and toast for breakfast", or just send a picture
 4. The LLM looks up nutritional data, logs it to CSV, tracks against your goals
 
 ## Structure
@@ -31,7 +31,7 @@ AI-assisted macro and micronutrient tracker. The interface is natural language -
 
 ## Setup
 
-1. Edit `data/targets.csv` to match your nutritional goals
+1. Edit `data/targets.csv` to match your nutritional goals. Ask the LLM to do it!
 2. Start chatting: "Log 200g chicken breast for lunch"
 
 ## Example Interactions
