@@ -1,52 +1,90 @@
 # Look Up Nutritional Information
 
-Find accurate nutritional data for foods using the local USDA database.
+Find accurate nutritional data for foods using multiple databases.
 
-## Primary Source: Local USDA Database
+## Available Data Sources
 
-Use the lookup script to search Foundation Foods:
+1. **USDA Foundation Foods** (local) - ~365 whole foods, high accuracy
+2. **Open Food Facts** (online) - Millions of packaged products, barcodes, European foods
+
+## Unified Lookup (Recommended)
+
+Search both databases at once:
 
 ```bash
-python3 scripts/lookup_usda.py "food name"
+python3 scripts/lookup_nutrition.py "food name"
 ```
 
 Options:
-- `--limit N` - Return top N matches (default 5)
-- `--portions` - Include standard portion sizes
+- `--limit N` - Max results per source (default 5)
+- `--portions` - Include standard portion sizes (USDA only)
 - `--json` - Output as JSON for easier parsing
-- `--id FDC_ID` - Look up by specific FDC ID
+- `--source usda|off` - Search only one database
+- `--country NAME` - Filter Open Food Facts by country (e.g., switzerland, germany)
 
-### Example
+### Barcode Lookup
+
+Look up packaged products by barcode (EAN/UPC):
 
 ```bash
-python3 scripts/lookup_usda.py "chicken breast" --portions
+python3 scripts/lookup_nutrition.py --barcode 3017620422003
 ```
 
-Returns per-100g nutrient values plus portion options.
+### USDA ID Lookup
 
-## Fallback Sources (when not in USDA data)
+Look up by specific USDA FDC ID:
 
-1. **User-provided info** - Nutrition labels, specific values
-2. **Brand websites** - For packaged/branded foods
-3. **Web search** - Last resort, cite source
+```bash
+python3 scripts/lookup_nutrition.py --id 171705
+```
 
-## Process
+## Individual Scripts
 
-1. Search local USDA database first
-2. If no match or ambiguous, ask for clarification:
-   - Preparation method (raw, cooked, fried)
-   - Specific variety
-   - Brand (for packaged foods)
-3. If not in USDA, fall back to other sources
-4. Return breakdown with source noted
+For specific databases only:
+
+```bash
+# USDA only (local, offline)
+python3 scripts/lookup_usda.py "chicken breast" --portions
+
+# Open Food Facts only (online, European foods, barcodes)
+python3 scripts/lookup_openfoodfacts.py "gruyere" --country switzerland
+python3 scripts/lookup_openfoodfacts.py --barcode 7613035844674
+```
+
+## Examples
+
+```bash
+# Search all databases
+python3 scripts/lookup_nutrition.py "eggs" --limit 3
+
+# Swiss cheeses and European foods
+python3 scripts/lookup_nutrition.py "emmental" --country switzerland
+
+# Packaged product by barcode
+python3 scripts/lookup_nutrition.py --barcode 3017620422003
+
+# Only local USDA data
+python3 scripts/lookup_nutrition.py "salmon" --source usda --portions
+```
 
 ## Scaling to Portion Size
 
-USDA values are per 100g. To scale:
+Values are per 100g. To scale:
 - Get the amount in grams
 - Multiply each nutrient by (amount_g / 100)
 
-The `--portions` flag shows common serving sizes with gram weights.
+Use `--portions` to see common serving sizes with gram weights (USDA only).
+
+## Process
+
+1. Search local USDA database first for whole foods
+2. Search Open Food Facts for packaged/branded items
+3. If user has a barcode, use barcode lookup
+4. If no match or ambiguous, ask for clarification:
+   - Preparation method (raw, cooked, fried)
+   - Specific variety
+   - Brand (for packaged foods)
+5. Return breakdown with source noted
 
 ## What to Return
 
@@ -61,26 +99,11 @@ If available:
 - Saturated fat, trans fat
 - Sodium, potassium
 - Vitamins and minerals
+- Nutri-Score (Open Food Facts)
 
 ## Handling Uncertainty
 
 - If multiple matches, show options: "Did you mean X or Y?"
 - If portion unclear, use standard serving from `--portions`
 - For home-cooked meals, break into ingredients and sum
-
-## Example Interaction
-
-User: "One chicken breast"
-
-```bash
-python3 scripts/lookup_usda.py "chicken breast" --portions --json
-```
-
-Response: "A raw chicken breast with skin (FDC ID: 2727569) per 100g:
-- Calories: not listed (estimate ~165 kcal)
-- Protein: 21.4g
-- Fat: 4.78g
-- Carbs: ~0g
-
-The USDA shows this without calorie data. A typical breast is ~175g.
-Should I log 175g chicken breast?"
+- Note the source (USDA vs Open Food Facts) in responses

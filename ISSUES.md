@@ -2,7 +2,65 @@
 
 ## Recently Completed ✓
 
-### ~~3. Improve food search/matching~~ ✓ Completed 2026-01-15
+### ~~1. Add European/Swiss nutritional database~~ ✓ Completed 2026-01-15
+
+**Labels:** enhancement, data
+
+Integrated Open Food Facts API with country-specific filtering:
+- **International coverage** - Millions of products from around the world
+- **Swiss/European foods** - Use `--country switzerland` (or germany, france, etc.)
+- **Country-specific subdomains** - Routes to regional OFF databases for better results
+
+Files added:
+- `scripts/lookup_openfoodfacts.py` - Open Food Facts API integration
+- `scripts/lookup_nutrition.py` - Unified lookup across all databases
+
+Example: `python3 scripts/lookup_nutrition.py "gruyere" --country switzerland`
+
+---
+
+### ~~2. Expand food database beyond 365 items~~ ✓ Completed 2026-01-15
+
+**Labels:** enhancement, data
+
+Added Open Food Facts integration providing access to millions of products:
+- **No bundling required** - Uses Open Food Facts API (online)
+- **Unified search** - Single command searches both USDA and OFF
+- **Source tracking** - Results show [USDA] or [OFF] labels
+
+Files added:
+- `scripts/lookup_openfoodfacts.py`
+- `scripts/lookup_nutrition.py`
+
+Updated: `.claude/skills/lookup_nutrition.md`
+
+---
+
+### ~~3. Add barcode/packaging photo support~~ ✓ Completed 2026-01-15
+
+**Labels:** enhancement, feature
+
+Implemented barcode lookup via Open Food Facts:
+- **EAN/UPC support** - Look up any barcode in OFF database
+- **Nutri-Score included** - Shows grade when available
+- **Brand and quantity** - Displays product details
+
+Usage:
+```bash
+python3 scripts/lookup_nutrition.py --barcode 3017620422003
+# or
+python3 scripts/lookup_openfoodfacts.py --barcode 3017620422003
+```
+
+Note: Photo/OCR extraction requires vision-capable LLM to read barcode from image first.
+
+Files added:
+- `scripts/lookup_openfoodfacts.py`
+- `scripts/lookup_nutrition.py`
+
+---
+
+### ~~4. Improve food search/matching~~ ✓ Completed 2026-01-15
 
 **Labels:** enhancement
 
@@ -59,55 +117,51 @@ Copy these to GitHub Issues when ready.
 
 ---
 
-## 1. Add European/Swiss nutritional database
+## 7. Add dedicated Swiss database integration
 
 **Labels:** enhancement, data
 
 ### Problem
-The current USDA Foundation Foods dataset is US-focused. Missing:
-- Swiss cheeses (Gruyère, Emmental, Appenzeller, Raclette)
-- European sausages (Cervelat, Bratwurst)
-- Regional foods and preparations
+While Open Food Facts provides some Swiss products, the official Swiss Food Composition Database (Schweizer Nährwertdatenbank) at https://naehrwertdaten.ch/ has more accurate data for traditional Swiss foods.
 
 ### Potential sources
-- **Swiss Food Composition Database** (Schweizer Nährwertdatenbank) - https://naehrwertdaten.ch/
-- **German BLS** (Bundeslebensmittelschlüssel)
-- **Open Food Facts** - crowdsourced, international coverage
+- **Swiss Food Composition Database** - Official government data
+- **German BLS** (Bundeslebensmittelschlüssel) - Comprehensive German database
 
 ### Implementation
-- Download and integrate additional database(s)
-- Update `lookup_usda.py` to search multiple sources (or create unified `lookup_nutrition.py`)
-- Add source field to track where data came from
+- Download official Swiss database
+- Create `lookup_swiss.py` script
+- Integrate into unified `lookup_nutrition.py`
 
 ---
 
-## 2. Expand food database beyond 365 items
-
-**Labels:** enhancement, data
-
-### Problem
-USDA Foundation Foods only has 365 foods. Missing many common items.
-
-### Options
-- **USDA SR Legacy** - ~8,000 foods, older but more comprehensive
-- **USDA Branded Foods** - 300k+ items but 3GB (too large to bundle)
-- **Open Food Facts** - millions of products, crowdsourced
-
-### Consideration
-Trade-off between database size and repo size. Could offer download script instead of bundling.
-
----
-
-## 3. Add barcode/packaging photo support
+## 8. Image recognition for meals
 
 **Labels:** enhancement, feature
 
 ### Description
-When user photographs food packaging:
-1. Extract barcode or product name
-2. Look up in Open Food Facts or similar
-3. Auto-populate nutritional values
+Allow users to photograph a meal and have it analyzed:
+1. Vision LLM identifies food items in the photo
+2. Estimates portions based on visual cues
+3. Looks up nutrition and logs the meal
 
 ### Dependencies
-- Requires vision-capable LLM
-- Open Food Facts API or local database
+- Requires multimodal LLM with vision capabilities
+- Good portion estimation logic
+
+---
+
+## 9. Goal tracking and recommendations
+
+**Labels:** enhancement, feature
+
+### Description
+Provide actionable recommendations based on intake patterns:
+- Suggest foods to fill nutrient gaps
+- Alert when approaching daily limits
+- Weekly goal progress tracking
+
+### Implementation
+- Analyze weekly_summary data
+- Build recommendation engine
+- Add notification/alert system
