@@ -61,8 +61,35 @@ def load_data():
             _data_cache = json.load(f)["FoundationFoods"]
     return _data_cache
 
+def levenshtein_distance(s1: str, s2: str) -> int:
+    """Calculate Levenshtein distance between two strings."""
+    if len(s1) < len(s2):
+        return levenshtein_distance(s2, s1)
+    if len(s2) == 0:
+        return len(s1)
+
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+
+    return previous_row[-1]
+
 def search_foods(query: str, limit: int = 10) -> list:
-    """Search foods by name. Returns list of matches."""
+    """Search foods by name with improved matching.
+
+    Scoring prioritizes:
+    1. Exact matches
+    2. Word boundary matches (query words match whole words in description)
+    3. All query words present (substring)
+    4. Fuzzy matches (for single-word queries)
+    5. Partial word matches
+    """
     foods = load_data()
     query_lower = query.lower()
     query_words = query_lower.split()
@@ -70,13 +97,29 @@ def search_foods(query: str, limit: int = 10) -> list:
     scored = []
     for food in foods:
         desc = food["description"].lower()
+        desc_words = re.split(r'[\s,]+', desc)
 
         # Exact match scores highest
         if query_lower == desc:
-            score = 1000
-        # All words present
+            score = 10000
+        # Check for word boundary matches
+        elif all(w in desc_words for w in query_words):
+            # All query words match whole words in description
+            score = 1000 - len(desc)  # Prefer shorter matches
+        # All words present as substrings
         elif all(w in desc for w in query_words):
-            score = 100 - len(desc)  # Prefer shorter matches
+            score = 100 - len(desc)
+        # Fuzzy matching for single-word queries
+        elif len(query_words) == 1:
+            min_dist = min(levenshtein_distance(query_lower, dw) for dw in desc_words)
+            # Allow fuzzy match if distance is small relative to word length
+            if min_dist <= max(2, len(query_lower) // 3):
+                score = 50 - min_dist * 5 - len(desc) / 100
+            # Check if any query word is a substring match
+            elif any(w in desc for w in query_words):
+                score = 10 - len(desc) / 100
+            else:
+                continue
         # Any word present
         elif any(w in desc for w in query_words):
             score = 10 - len(desc) / 100

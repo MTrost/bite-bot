@@ -1,4 +1,59 @@
-# Open Issues
+# Issues
+
+## Recently Completed ✓
+
+### ~~3. Improve food search/matching~~ ✓ Completed 2026-01-15
+
+**Labels:** enhancement
+
+Enhanced `lookup_usda.py` with:
+- **Word boundary matching** - "egg" now correctly returns egg products, not eggplant
+- **Fuzzy matching** - Handles typos using Levenshtein distance for single-word queries
+- **Better scoring system** - Prioritizes exact matches, then word boundaries, then substrings
+- Prefer shorter, more relevant matches
+
+Implementation in: `scripts/lookup_usda.py:64-132`
+
+---
+
+### ~~5. Weekly/monthly summary reports~~ ✓ Completed 2026-01-15
+
+**Labels:** enhancement, feature
+
+Created `weekly_summary.py` script and skill with:
+- Daily breakdown view
+- Average daily intake with target comparison
+- **Trend analysis** - Shows if nutrients are increasing, decreasing, or stable
+- **Nutrient gap detection** - Flags consistently low (<70%) or high (>150%) nutrients
+- Supports custom time periods (7, 14, 30 days, etc.)
+- Optional all-nutrients view
+
+Files added:
+- `scripts/weekly_summary.py`
+- `.claude/skills/weekly_summary.md`
+
+---
+
+### ~~6. Meal templates / recipes~~ ✓ Completed 2026-01-15
+
+**Labels:** enhancement, feature
+
+Implemented full meal template system:
+- **Save common meals** - Store frequently eaten combinations
+- **Quick logging** - Log entire meal with one command
+- **Flexible format** - Supports both USDA IDs (auto-nutrients) and manual entry
+- Template management (add, list, get, delete)
+
+Files added:
+- `scripts/manage_templates.py` - Create, list, delete templates
+- `scripts/log_template.py` - Log all foods from a template
+- `.claude/skills/meal_templates.md` - Usage guide
+
+Templates stored in: `data/templates.json`
+
+---
+
+## Open Issues
 
 Copy these to GitHub Issues when ready.
 
@@ -43,22 +98,7 @@ Trade-off between database size and repo size. Could offer download script inste
 
 ---
 
-## 3. Improve food search/matching
-
-**Labels:** enhancement
-
-### Problem
-Current search is basic substring matching. "egg" returns "Eggplant" before "Egg, whole".
-
-### Improvements
-- Fuzzy matching (Levenshtein distance)
-- Word boundary preference
-- Common name aliases ("chicken" → "Chicken, breast, boneless...")
-- User's recent foods weighted higher
-
----
-
-## 4. Add barcode/packaging photo support
+## 3. Add barcode/packaging photo support
 
 **Labels:** enhancement, feature
 
@@ -71,34 +111,3 @@ When user photographs food packaging:
 ### Dependencies
 - Requires vision-capable LLM
 - Open Food Facts API or local database
-
----
-
-## 5. Weekly/monthly summary reports
-
-**Labels:** enhancement, feature
-
-### Description
-Add skill/script for longer-term analysis:
-- Average daily intake over period
-- Trends (protein going up/down)
-- Nutrients consistently under/over target
-- Visual charts (if terminal supports)
-
----
-
-## 6. Meal templates / recipes
-
-**Labels:** enhancement, feature
-
-### Description
-Save common meals as templates:
-```
-"morning oatmeal" = oats 50g + milk 200ml + banana 100g + honey 15g
-```
-
-User says "I had my morning oatmeal" → logs all components.
-
-### Implementation
-- `data/templates.csv` or `data/recipes.json`
-- New skill for managing templates
